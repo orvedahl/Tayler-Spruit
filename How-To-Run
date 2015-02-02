@@ -1,0 +1,19 @@
+
+Tayler-Spruit Dynamo using Dedalus
+
+---------------------------------------------------------------------
+
+To Run:
+	#!bash
+	python3 Tayler_Spruit.py
+	python3 plot_results_parallel.py <output-dir> slices 1 1 10
+
+In parallel:
+	#!bash
+	mpirun -np 4 python3 Tayler_Spruit.py
+	mpirun -np 2 python3 plot_results_parallel.py <dir> slices 1 1 10
+
+Number of Cores:
+	-data generation : up to Nz/2
+	-image generation: must be even multiple of number of data files
+

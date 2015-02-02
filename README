@@ -1,0 +1,27 @@
+
+
+	Tayler-Spruit Dynamo Problem
+
+	R. Orvedahl (2-2-2015)
+	------------------------------------------------------------------
+
+	Main questions:
+
+		1) Does the TS dynamo operate & transport angular momentum?
+
+		2) Does the TS dynamo close the loop?
+
+
+	How to attack the questions:
+
+		cylindrical coords, remove center
+		full annulus, with R_inner=~0.3-0.5 & R_outer=1.0
+		anelastic equation set (rotating, resistive MHD)
+		z-axis goes for about 1 or less density scale heights
+		probably want kappa/eta ~ 10 (thermal/magnetic)
+
+	Analysis tools:
+
+		use dedalus to do eigenmode/eigenfreq analysis
+		look at angular momentum transport
+
