@@ -1,0 +1,273 @@
+%
+% CU Boulder Spring 2015 Tayler Spruit Stuff
+%
+% Ryan Orvedahl Spring 2015
+
+%\documentclass[titlepage,12pt]{article}
+%\documentclass[apj]{emulateapj}
+\documentclass[apj,onecolumn]{emulateapj}
+%\documentclass[apj,twocolumn]{emulateapj} 
+%\bibliographystyle{apj}
+
+% Define new commands (shortcuts):
+\input shortcuts
+
+\newcommand{\uvec}{\ensuremath{\vec{u}}} % \vec{u} shortcut
+\newcommand{\Bvec}{\ensuremath{\vec{B}}} % \vec{B} shortcut
+
+% allows the \hl{} command to highlight stuff
+\usepackage{color,soul}
+
+% special colors and definitions for framing source code listings
+\usepackage{listings}
+
+\definecolor{AntiqueWhite3}{rgb}{0.804,0.753,0.69}
+\definecolor{DarkerAntiqueWhite3}{rgb}{0.659,0.635,0.612}
+\definecolor{orange}{rgb}{1.0,0.65,0.0}
+
+\lstset{%
+  keywordstyle=\color{blue}\ttfamily,%
+  commentstyle=\itshape\color[gray]{0.5},%
+  mathescape=true,%
+  basicstyle=\small\ttfamily,%
+  %frameround=fttt,%
+  frameround=ffff,%
+  %frame=shadowbox,%
+  frame=single,%
+  rulesepcolor=\color{DarkerAntiqueWhite3},%
+  backgroundcolor=\color{AntiqueWhite3},%
+  emph={load,add_slice,save}, emphstyle=\color{blue},%
+  emph={[2]In}, emphstyle=[2]\color{yellow},%
+  emph={[3]Out}, emphstyle=[3]\color{orange},%
+  xleftmargin=1em,
+  xrightmargin=1em,
+  mathescape=false}
+
+%\usepackage{pdflscape} % landscape ability
+%\usepackage{scrextend} % footnote and \footref commands
+
+\begin{document}
+
+%========================================================================
+% create title and author
+%========================================================================
+\title{Equation Set for Tayler-Spruit Dynamo}
+\author{Ryan Orvedahl$^1$}
+\affil{$^1$Department of Astrophysical \& Planetary Sciences, University 
+of Colorado at Boulder, 
+Boulder, CO 80309}
+%\date{\today}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Abstract
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+We write down the equations to be used to study the Tayler-Spruit Dynamo 
+problem.
+\end{abstract}
+
+\keywords{MHD, Hydrodynamics, Computational Fluid Dynamics, Instability}
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Intro
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Governing Equations}
+\label{sec:eqns}
+We model the Tayler-Spruit dynamo in a fully compressible, resistive MHD 
+framework with an Ideal gas equation of state:
+\begin{equation}
+\DxDt{\rho} = - \rho\del\cdot\uvec
+\end{equation}
+
+\begin{equation}
+P=(\gamma - 1)C_v \rho T = \rho^\gamma e^{S/C_v}
+\end{equation}
+
+\begin{equation}
+\rho T \DxDt{S} = \kappa\del^2 T +
+ \stackrel{\leftrightarrow}{\Pi} \mathbf{\colon} \del \uvec
+\end{equation}
+
+\begin{equation}
+\dxdt{\Bvec} = \del \times \left(\uvec\times\Bvec\right) + \eta\del^2\Bvec
+\end{equation}
+
+\begin{equation}
+\rho\DxDt{\uvec} = -\del\left(P + \frac{B^2}{8\pi} + \phi_{eff}\right) +
+           2\uvec\times\vec{\Omega} +
+           \frac{\left(\del\times\Bvec\right)\times\Bvec}{4\pi} +
+           \del\cdot\stackrel{\leftrightarrow}{\Pi}
+\end{equation}
+Where we have used the following definitions:
+\begin{equation}
+\stackrel{\leftrightarrow}{\Pi} = \mu\left(\del\uvec +
+       \left(\del\uvec\right)^T -
+       \frac{2}{3}\stackrel{\leftrightarrow}{I}\del\cdot\uvec\right)
+\end{equation}
+\begin{equation}
+\DDt = \ddt + \uvec\cdot\del
+\end{equation}
+\begin{equation}
+\gamma = \frac{C_p}{C_v}
+\end{equation}
+\begin{equation}
+\phi_{eff} = \phi + \half\lambda^2\Omega^2
+\end{equation}
+and $\lambda$ is the distance from the rotation axis. We have also assumed 
+that the thermal, viscous and magnetic diffusivities ($\kappa$, $\mu$ and 
+$\eta$) are all constant.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Thermo
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Thermodynamics}
+\label{sec:thermo}
+We start with the Ideal gas equation of state and solve it for the entropy:
+\begin{equation}
+\frac{S}{C_v} = \log P - \gamma \log \rho \Rightarrow
+\frac{S}{\gamma C_v} =
+         \frac{1}{\gamma}\log\left((\gamma - 1)C_v\rho T\right) - \log\rho
+\end{equation}
+\begin{equation}
+\frac{S}{C_p} = \frac{1}{\gamma}\log\left((\gamma - 1)C_v\right) +
+              \left(\frac{1}{\gamma}-1\right)\log\rho +
+              \frac{1}{\gamma}\log T
+\end{equation}
+Assuming both $C_v$ and $\gamma$ are constant,
+\begin{equation}
+\frac{1}{C_v}\DxDt{S} = (1-\gamma)\DxDt{\log\rho} + \DxDt{\log T} =
+ (\gamma -1)\del\cdot\uvec + \DxDt{\log T}
+\end{equation}
+Where we have used the continuity equation for the last equality.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Linearize
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Linearized Equations}
+\label{sec:linear}
+To linearize the equations, we decompose the fields into background and 
+fluctuating parts: $x(\vec{r},t) = x_0(\vec{r}) + x_1(\vec{r},t)$. We further 
+assume that the fluctuating parts are small compared to the background:
+$|x_1| \ll |x_0|$. This allows us to drop any terms that are quadratic in 
+the fluctuating quantities, i.e. terms that would appear as $x_1 y_1$. We also 
+impose that the background quantites satisfy the equations. This allows us 
+to subtract the background state after plugging in the decomposed fields, 
+leaving equations for the evolution of the fluctuations.
+
+First we linearize the equation of state using the assumption that $x_1/x_0$ 
+is a small quantity and the approximation $\log(1+\epsilon) \approx \epsilon$.
+\begin{equation}
+P = (\gamma -1)C_v\rho T
+\end{equation}
+\begin{equation}
+P_1+P_0 = (\gamma -1)C_v\left(\rho_0+\rho_1\right)\left(T_0+T_1\right)
+\end{equation}
+\begin{equation}
+P_0\left(1+\frac{P_1}{P_0}\right) = (\gamma -1)C_v\rho_0 T_0
+          \left(1+\frac{\rho_1}{\rho_0}\right)
+          \left(1+\frac{T_1}{T_0}\right)
+\end{equation}
+\begin{equation}
+\left(1+\frac{P_1}{P_0}\right) = \left(1+\frac{\rho_1}{\rho_0}\right)
+                                 \left(1+\frac{T_1}{T_0}\right)
+\end{equation}
+\begin{equation}
+\log\left(1+\frac{P_1}{P_0}\right) = \log\left(1+\frac{\rho_1}{\rho_0}\right)
+                                 + \log\left(1+\frac{T_1}{T_0}\right)
+\end{equation}
+\begin{equation}
+\frac{P_1}{P_0} = \frac{\rho_1}{\rho_0} + \frac{T_1}{T_0}
+\end{equation}
+
+The final set of linearized equations is:
+\begin{equation}
+\dxdt{\rho_1} = -\rho_0\del\cdot\uvec_1 - \uvec_1\cdot\del\rho_0
+\end{equation}
+\begin{equation}
+\dxdt{\Bvec_1} = \del\times\left(\uvec_1\times\Bvec_0\right)+\eta\del^2\Bvec_1
+\end{equation}
+\begin{equation}
+\rho_0\dxdt{T_1} = -\rho_0\uvec_1\cdot\del T_0 -
+                     \rho_0 T_0 (\gamma -1)\del\cdot\uvec_1 +
+                     \frac{\kappa}{C_v}\del^2T_1
+\end{equation}
+\begin{equation}
+\rho_0\dxdt{\uvec_1} = -\del\left(P_1 +\frac{B_0B_1}{4\pi} + \phi_{eff}\right)
+                       +2\uvec_1\times\vec{\Omega} +
+          \frac{\left(\del\times\Bvec_0\right)\times \Bvec_1}{4\pi} +
+          \frac{\left(\del\times\Bvec_1\right)\times \Bvec_0}{4\pi} +
+          \mu\del^2\uvec_1 + \frac{\mu}{3}\del\left(\del\cdot\uvec_1\right)
+\end{equation}
+\begin{equation}
+\frac{P_1}{P_0} = \frac{\rho_1}{\rho_0} + \frac{T_1}{T_0}
+\end{equation}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Conclusions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\section{Conclusions and Discussion}
+%\label{sec:conclusions}
+%We presented results of numerically integrating the equations of motion 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Acknowledgements
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\section*{Acknowledgements}
+%\label{sec:acks}
+%I would like to thank my computer for not crashing during the data collection 
+%phase of this project.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% References
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% include references
+%\nocite{*}
+%\bibliography{Bibliography}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Figures
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%======================================================================
+% the figure* environment allows the figure to take up two columns
+%\begin{figure*}[h]
+%\begin{center}
+%\centerline{\includegraphics[scale=0.4,angle=0]{./Plots/.pdf}}
+%\caption{}
+%\label{fig:}
+%\end{center}
+%\end{figure*}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Data
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%======================================================================
+%\begin{table}[h]
+%\begin{center}
+%\begin{tabular}{|c|c|c|c|}
+%\hline
+%& Simple-3 (\maestro) & Regular-9 (\mesa)& Extended-33 (\mesa) \\ \hline
+%1 & C12 & H1 & neutron \\ \hline
+%2 & O16 & He4 & H1 \\ \hline
+%3 & Mg24 & C12 & He3 \\ \hline
+%4 & - & O16 & He4\\ \hline
+%5 & - & Ne20 & Be9\\ \hline
+%6 & - & Na23 & C12\\ \hline
+%\end{tabular}
+%\caption{List of isotopes used in each network. The Regular-9 and Extended-33 
+%networks used the \mesa\ code while the Simple-3 network used the \maestro\ 
+%code.}
+%\label{tab:isos}
+%\end{center}
+%\end{table}
+
+\end{document}
+
+
