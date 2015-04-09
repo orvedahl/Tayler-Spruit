@@ -31,7 +31,12 @@ from dedalus.core.field import Field
 from dedalus.extras import flow_tools
 
 
-def run(subs):
+def run(subs, images):
+
+    print ("\n\nBegin Taylor-Couette\n")
+    print ("Using substitutions: ",subs)
+    print ("Generating images  : ",images)
+    print()
 
     # set lowest level of all loggers to INFO, i.e. dont follow DEBUG stuff
     root = logging.root
@@ -71,25 +76,56 @@ def run(subs):
     TC.parameters['V_r'] = V_r
     mu = TC.parameters['V_r']/TC.parameters['V_l'] * eta
 
-    # multiply equations through by r**2 to avoid 1/r and 1/r**2 terms
+    # multiply r & theta equations through by r**2 to avoid 1/r**2 terms
+    # multiply z equation through by r to avoid 1/r terms
     if (subs):
-        # setup substitutions
-        logger.info("not implemented yet")
-        sys.exit(2)
 
-        # define substitutions (can be used in equations & analysis tasks)
-        TC.substitutions['KE'] = 'rho*(u*u+w**2)/2'
-        TC.substitutions['Lap(u, uz)'] = 'dx(dx(u)) + dz(uz)'
+        # define AXISYMMETRIC substitutions, these can be used in 
+        # equations & analysis tasks)
+
+        # define ur, vr & wr
+        #TC.substitutions['ur'] = 'dr(u)'
+        #TC.substitutions['vr'] = 'dr(v)'
+        #TC.substitutions['wr'] = 'dr(w)'
+
+        # r*div(U)
+        TC.substitutions['r_div(u,w)'] = 'u + r*ur + r*dz(w)'
+
+        # r-component of gradient
+        TC.substitutions['grad_1(p)'] = 'dr(p)'
+
+        # z-component of gradient
+        TC.substitutions['grad_3(p)'] = 'dz(p)'
+
+        # r*Laplacian(scalar)
+        TC.substitutions['r_Lap(f, fr)'] = 'r*dr(fr) + dr(f) + dz(dz(f))'
+
+        # r-component of r*r*Laplacian(vector)
+        TC.substitutions['r2_Lap_1(u,v,w)'] = 'r*r_Lap(u, ur) - u'
+
+        # theta-component of r*r*Laplacian(vector)
+        TC.substitutions['r2_Lap_2(u,v,w)'] = 'r*r_Lap(v, vr) - v'
+
+        # z-component of r*Laplacian(vector)
+        TC.substitutions['r_Lap_3(u,v,w)'] = 'r_Lap(w, wr)'
+
+        # r-component of r*r*U dot grad(U)
+        TC.substitutions['r2_u_grad_u_1(u,v,w,ur)'] = \
+                                 'r*r*u*ur + r*r*w*dz(w) - r*v*v'
+        # theta-component of r*r*U dot grad(U)
+        TC.substitutions['r2_u_grad_u_2(u,v,w,vr)'] = \
+                                 'r*r*u*vr + r*r*w*dz(v) + r*u*v'
+        # z-component of r * U dot grad(U)
+        TC.substitutions['r_u_grad_u_3(u,v,w,wr)'] = 'r*u*wr + r*w*dz(w)'
 
         # equations using substituions
-        TC.add_equation("r*ur + u + r*dz(w) = 0")
-        TC.add_equation("r*r*dt(u) - r*r*nu*dr(ur) - r*nu*ur - " +
-               "r*r*nu*dz(dz(u)) + nu*u + r*r*dr(p) = -r*r*u*ur - " +
-               "r*r*w*dz(u) + r*v*v")
-        TC.add_equation("r*r*dt(v) - r*r*nu*dr(vr) - r*nu*vr - " +
-               "r*r*nu*dz(dz(v)) + nu*v  = -r*r*u*vr - r*r*w*dz(v) - r*u*v")
-        TC.add_equation("r*dt(w) - r*nu*dr(wr) - nu*wr - r*nu*dz(dz(w)) + " +
-               "r*dz(p) = -r*u*wr - r*w*dz(w)")
+        TC.add_equation("r_div(u,w) = 0")
+        TC.add_equation("r*r*dt(u) - nu*r2_Lap_1(u,v,w) + r*r*grad_1(p)" + \
+               "= -r2_u_grad_u_1(u,v,w,ur)")
+        TC.add_equation("r*r*dt(v) - nu*r2_Lap_2(u,v,w)" + \
+               "= -r2_u_grad_u_2(u,v,w,vr)")
+        TC.add_equation("r*dt(w) - nu*r_Lap_3(u,v,w) + r*grad_3(p)" + \
+               "= -r_u_grad_u_3(u,v,w,wr)")
         TC.add_equation("ur - dr(u) = 0")
         TC.add_equation("vr - dr(v) = 0")
         TC.add_equation("wr - dr(w) = 0")
@@ -194,6 +230,9 @@ def run(subs):
 
     while IVP.ok:
         IVP.step(dt)
+        if (images):
+            # save a plot at every iteration for a movie
+            mid_sim_plot(r, z, u, v, w, IVP.iteration)
         if (IVP.iteration % 10 == 0):
             logger.info('Iteration: %i, Time: %e, dt: %e' % \
                                           (IVP.iteration, IVP.sim_time, dt))
@@ -205,6 +244,9 @@ def run(subs):
     logger.info('Iterations: %i' % (IVP.iteration))
     logger.info('Average timestep: %f' %(IVP.sim_time/IVP.iteration))
     logger.info('Period: %f' %(period))
+    logger.info('\n\tSimulation Complete\n')
+
+def mid_sim_plot(r, z, u, v, w, itr):
 
     # plot the last snapshot of the background v\theta-hat with arrows 
     # representing the meridional flow
@@ -216,10 +258,11 @@ def run(subs):
     pylab.axis('image')
     pylab.xlabel('r', fontsize=18)
     pylab.ylabel('z', fontsize=18)
-    pylab.show()
+    output = "plots/image_"+str(itr).strip()+".png"
+    pylab.savefig(output)
+    print ("Saved Image: %s" % output)
 
-    logger.info('\n\tSimulation Complete\n')
-
+    return
 
 def analyze():
 
@@ -270,13 +313,15 @@ def analyze():
 if __name__ == "__main__":
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "rs", ["subs", "run"])
+        opts, args = getopt.getopt(sys.argv[1:], "rsi",
+                                   ["subs", "run", "images"])
     except getopt.GetoptError:
         print ("\n\n\tBad Command Line Args\n\n")
         sys.exit(2)
 
     simulate = False
     subs = False
+    images = False
 
     for opt, arg in opts:
 
@@ -286,9 +331,12 @@ if __name__ == "__main__":
         elif opt in ("-s", "--subs"):
            subs = True
 
+        elif opt in ("-i", "--images"):
+           images = True
+
     # run the simulation
     if (simulate):
-        run(subs)
+        run(subs, images)
 
     # do the analysis
     else:
