@@ -129,6 +129,7 @@ def run(subs):
     dt = max_dt = 1.
     Omega_1 = TC.parameters['V_l']/R_in
     period = 2.*numpy.pi/Omega_1
+    logger.info('Period: %f' %(period))
 
     ts = de.timesteppers.RK443
     IVP = TC.build_solver(ts)
@@ -193,7 +194,8 @@ def run(subs):
 
     while IVP.ok:
         IVP.step(dt)
-        logger.info('Iteration: %i, Time: %e, dt: %e' % \
+        if (IVP.iteration % 10 == 0):
+            logger.info('Iteration: %i, Time: %e, dt: %e' % \
                                           (IVP.iteration, IVP.sim_time, dt))
         dt = CFL.compute_dt()
 
@@ -202,14 +204,15 @@ def run(subs):
     logger.info('Total time: %f' % (end_time-start_time))
     logger.info('Iterations: %i' % (IVP.iteration))
     logger.info('Average timestep: %f' %(IVP.sim_time/IVP.iteration))
+    logger.info('Period: %f' %(period))
 
     # plot the last snapshot of the background v\theta-hat with arrows 
     # representing the meridional flow
-    pylab.figsize(12,8)
-    pylab.pcolormesh((r[0]*ones_like(z)).T, (z*ones_like(r)).T, v['g'].T,
-                     cmap='PuOr')
-    pylab.quiver((r[0]*ones_like(z)).T, (z*ones_like(r)).T, u['g'].T, w['g'].T,
-                 width=0.005)
+    #pylab.figsize(12,8)
+    pylab.pcolormesh((r[0]*numpy.ones_like(z)).T, (z*numpy.ones_like(r)).T, 
+                     v['g'].T, cmap='PuOr')
+    pylab.quiver((r[0]*numpy.ones_like(z)).T, (z*numpy.ones_like(r)).T, 
+                 u['g'].T, w['g'].T, width=0.005)
     pylab.axis('image')
     pylab.xlabel('r', fontsize=18)
     pylab.ylabel('z', fontsize=18)
@@ -219,6 +222,10 @@ def run(subs):
 
 
 def analyze():
+
+    # hard coded --- pretty ugly...
+    period = 14.151318
+    Re = 80.
 
     # extract time series data
     def get_timeseries(data, field):
@@ -244,13 +251,13 @@ def analyze():
     gamma_barenghi = 0.430108693
     rel_error_barenghi = (gamma_barenghi - gamma_w_scaled)/gamma_barenghi
 
-    print ("gamm_w = %10.8" % gamma_w_scaled) # expect ~ 0.37201041
-    print ("relative error = %10.8f" % rel_error_barenghi) # ~1.35078136e-1
+    print ("gamma_w = %10.8f" % (gamma_w_scaled)) # expect ~ 0.37201041
+    print ("relative error = %10.8f" % (rel_error_barenghi)) # ~1.35078136e-1
 
     # plot RMS w and compare to fitted exponential
     fig = pylab.figure()
     ax = fig.add_subplot(111)
-    ax.semilogy(t/period, wrms, 'ko', label=r'($w_{rms}$', ms=10)
+    ax.semilogy(t/period, wrms, 'ko', label=r'$w_{rms}$', ms=10)
     ax.semilogy(t/period, numpy.exp(log_w0)*numpy.exp(gamma_w*t), 'k-.',
                 label=r'$\gamma_w = %f$' % gamma_w)
     ax.legend(loc='upper right', fontsize=18).draw_frame(False)
