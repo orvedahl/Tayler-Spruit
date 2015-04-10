@@ -98,7 +98,7 @@ def run(subs, images):
         TC.substitutions['grad_3(p)'] = 'dz(p)'
 
         # r*Laplacian(scalar)
-        TC.substitutions['r_Lap(f, fr)'] = 'r*dr(fr) + dr(f) + dz(dz(f))'
+        TC.substitutions['r_Lap(f, fr)'] = 'r*dr(fr) + dr(f) + r*dz(dz(f))'
 
         # r-component of r*r*Laplacian(vector)
         TC.substitutions['r2_Lap_1(u,v,w)'] = 'r*r_Lap(u, ur) - u'
@@ -264,7 +264,10 @@ def mid_sim_plot(r, z, u, v, w, itr):
 
     return
 
-def analyze():
+def analyze(subs):
+
+    print ("\nUsing Subs: ",subs)
+    print ()
 
     # hard coded --- pretty ugly...
     period = 14.151318
@@ -278,7 +281,11 @@ def analyze():
         return time, data_out
 
     # read data from HDF5 file
-    data = h5py.File("scalar_data/scalar_data_s1/scalar_data_s1_p0.h5", "r")
+    if (subs):
+        dir = "./"
+    else:
+        dir = "Subs-False/"
+    data = h5py.File(dir+"scalar_data/scalar_data_s1/scalar_data_s1_p0.h5", "r")
     t, ke   = get_timeseries(data, 'total KE')
     t, kem  = get_timeseries(data, 'meridional KE')
     t, urms = get_timeseries(data, 'u_rms')
@@ -340,6 +347,6 @@ if __name__ == "__main__":
 
     # do the analysis
     else:
-        analyze()
+        analyze(subs)
 
 
