@@ -1,0 +1,83 @@
+%
+% Define new commands/macros and/or shortcuts:
+%
+%     => basic new command:
+%          ---\newcommand{what-to-call-command}{what-it-does}
+%
+%     => arguments sent with [num], where num is how many arguments
+%          each argument is addressed using #1 and #2:
+%          ---\newcommand{\iso}[2]{$^{#1}$#2}
+%             so: \iso{13}{C} = $^{13}$C or \iso{23}{Mg} = $^{23}$Mg
+%
+%     => optional arguments sent with two brackets [num][val]
+%          where num is still number of args, but first argument is given 
+%          default value of val if it is not present, note use of [] brackets:
+%          ---\newcommand{\carbon}[1][12]{$^{#1}$C}
+%             so: \carbon = $^{12}$C but \carbon[13] = $^{13}$C
+%          ---\newcommand{\iso}[2][C]{$^{#2}$#1}
+%             so: \iso{12} = $^{12}$C but \iso[Mg]{24} = $^{24}$Mg
+%
+%     => \ensuremath{} allows commands to operate in both text and math mode
+%
+% Units
+%      in text mode use 2.4\musec\ instead of 2.4 \musec\ because the space 
+%        is explicitly set in the command with ``\ '' in front of mathrm
+\newcommand{\seconds}{\ensuremath{\ \mathrm{s}}} % units of sec
+\newcommand{\musec}  {\ensuremath{\ \mu\mathrm{s}}} % units of micro-sec
+\newcommand{\msec}   {\ensuremath{\ \mathrm{ms}}} % units of millisec
+\newcommand{\gcc}    {\ensuremath{\ \mathrm{g/}\mathrm{cm}^3}} % g/cm^3
+\newcommand{\meters}{\ensuremath{\ \mathrm{m}}} % units of meters
+
+% Isotopes
+\newcommand{\iso}[2]{\ensuremath{^{#2}\mathrm{#1}}} % arbitrary isotope
+\newcommand{\carb}{\iso{C}{12}}
+\newcommand{\mg}{\iso{Mg}{24}}
+\newcommand{\oxy}{\iso{O}{16}}
+\newcommand{\nickel}{\iso{Ni}{56}}
+
+% Names
+\newcommand{\maestro}{{\sf MAESTRO}} % pretty output of MAESTRO
+\newcommand{\mesa}{{\sf MESA}} % pretty output of MESA
+
+% Dimensionless Numbers
+\newcommand{\pr}{\ensuremath{\mathrm{Pr}}} % Prandtl #
+\newcommand{\ra}{\ensuremath{\mathrm{Ra}}} % Rayleigh #
+
+% Partial Derivs
+\newcommand{\ddt}{\ensuremath{\frac{\partial}{\partial t}}} % fraction d/dt
+\newcommand{\dxdt}[1]{\ensuremath{\frac{\partial #1}{\partial t}}} % frac dx/dt
+\newcommand{\DDt}{\ensuremath{\frac{D}{D t}}} % fraction D/Dt
+\newcommand{\DxDt}[1]{\ensuremath{\frac{D #1}{D t}}} % frac Dx/Dt
+
+\newcommand{\ddz}{\ensuremath{\frac{\partial}{\partial z}}} % fraction d/dz
+\newcommand{\dddz}{\ensuremath{\frac{\partial^2}{\partial z^2}}} % frac d2/dz2
+\newcommand{\dxdz}[1]{\ensuremath{\frac{\partial #1}{\partial z}}} % frac dx/dz
+\newcommand{\ddxdzz}[1]{\ensuremath{\frac{\partial^2 #1}{\partial z^2}}}
+
+\def\ptl {\partial}
+\def\del {\vec{\nabla}}
+
+% Fractions
+\newcommand{\sfrac}[2]{\mathchoice
+  {\kern0em\raise.5ex\hbox{\the\scriptfont0 #1}\kern-.15em/
+   \kern-.15em\lower.25ex\hbox{\the\scriptfont0 #2}}
+  {\kern0em\raise.5ex\hbox{\the\scriptfont0 #1}\kern-.15em/
+   \kern-.15em\lower.25ex\hbox{\the\scriptfont0 #2}}
+  {\kern0em\raise.5ex\hbox{\the\scriptscriptfont0 #1}\kern-.2em/
+   \kern-.15em\lower.25ex\hbox{\the\scriptscriptfont0 #2}}
+  {#1\!/#2}}
+
+\newcommand{\half}{\frac{1}{2}}
+\newcommand{\myhalf}{\sfrac{1}{2}}
+\newcommand{\nph}{{n + \myhalf}}
+\newcommand{\nmh}{{n - \myhalf}}
+\newcommand{\npo}{{n + 1}}
+\newcommand{\nmo}{{n - 1}}
+
+% Discrete Stuff
+\newcommand{\dt}{{\Delta t}}
+\newcommand{\dx}{{\Delta x}}
+\newcommand{\dy}{{\Delta y}}
+\newcommand{\dz}{{\Delta z}}
+\newcommand{\dr}{{\Delta r}}
+
